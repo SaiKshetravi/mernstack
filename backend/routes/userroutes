@@ -1,0 +1,92 @@
+const express=require('express');
+const router=express.Router();
+const bcrypt=require('bcrypt');
+const saltRound=10;
+const userdata=require('../modules/userdata');
+
+
+router.get('/userdata',(req,res)=>{
+res.json({message:"userdata",userdata:userdata});
+});
+
+
+router.post('/createuser',async(req,res)=>{
+    const data=req.body;
+
+    
+     const existingUsername = userdata.filter(user => user.username === data.username);
+
+    if (existingUsername.length > 0) {
+        console.log("Username already exists");
+        return res.status(400).json({ message: "Username already exists" });
+    }
+    
+const enterpassword=data.password;
+console.log(" entered password: ", enterpassword);
+    const hashedpassword= await bcrypt.hash(data.password,saltRound);
+    data.password=hashedpassword;
+    console.log("hashed Password "+hashedpassword);
+    userdata.push(data);
+
+    console.log("User created successfully");
+  return res.status(200).json({ message: "User created successfully", userdata });
+});
+
+const loginVerification= async (req,res,next)=>{
+    const data=req.body;
+    const existingUser=userdata.filter(user => user.username === data.username);
+    if(existingUser.length > 0){
+        const databasepassword=existingUser[0].password;
+        const isPasswordValid= await bcrypt.compare(data.password,databasepassword);
+        console.log("valid password" ,isPasswordValid);
+        if(isPasswordValid){
+            next();
+            console.log("Login successful");
+         }
+         else{;
+            return res.status(400).json({message:"login failed due to invalid password"});   
+         }
+
+        
+        
+        console.log("iam in middleware1");
+        
+     }
+
+else{
+    console.log("Login failed");
+    return res.status(400).json({ message: "username does  not exit" });
+}
+}
+const m2=(req,res,next)=>{
+    console.log("iam in middleware2");
+    
+    next();
+
+}
+
+
+router.post('/Login',loginVerification,m2,(req,res)=>{
+    console.log("iam in login route");
+    return res.status(200).json({message:"Login successful"});
+});
+
+// const loginVerification= (req,res,next)=>{
+//     const data=req.body;
+//     const existingUser=userdata.filter(user => user.username === data.username && user.password === data.password);
+//     if(existingUser.length > 0){
+//         console.log("Login successful");
+// next();  
+// }
+
+// else{
+//     console.log("Login failed");
+//     return res.status(400).json({ message: "Login failed" });
+// }
+// }
+
+
+router.get('/getdata',(req,res)=>{
+    res.send('UserID: (req.params.id');
+});
+module.exports=router;

@@ -1,0 +1,20 @@
+userdata=[{
+    username:"admin",
+    password:"admin123"
+},
+{
+    username:"user1",
+    password:"user123"
+},
+{
+    username:"user2",
+    password:"user123"
+},
+{
+    username: 'hhhh',
+     password: "$2b$10$vsrvCUXPQlzo1xnjy8DXBesJ9DWRQ1BCrTlT9fSvl5/ZUDehEabfe"
+}
+
+]
+module.exports =userdata;
+
